@@ -1,0 +1,12 @@
+Factura de Venta
+Cliente: Ana Rodriguez
+Fecha: 01/12/2024
+Teléfono: (03) 4567-8901
+
+Producto                       Cantidad   Precio Unitario (¥)  Total (¥)           
+--------------------------------------------------------------------------------
+Cemento Blanco Tipo B          60         7500.00              450000.00           
+--------------------------------------------------------------------------------
+Total de la Venta (¥)                                        450000.00           
+
+Gracias por su compra!

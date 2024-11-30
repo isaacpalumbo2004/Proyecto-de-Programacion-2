@@ -1,0 +1,17 @@
+Proyecto/
+│
+├── main.py                    # Archivo principal para ejecutar la aplicacion
+├── Modulos/                   # Carpeta principal que contiene los modulos
+│   ├── Inventario/            # Carpeta para el modulo de inventario
+│   │   └── inventario.py      # Modulo para manejar el inventario
+│   │
+│   ├── Ventas/                # Carpeta para el modulo de ventas
+│   │   └── ventas.py          # Modulo para manejar las ventas
+│   │
+│   └── Utils/                 # Carpeta para el modulo de utilidades generales
+│       └── utils.py           # Funciones auxiliares (por ejemplo, creacion de directorios)
+│
+├── Facturas/                  # Carpeta donde se generaran las facturas
+├── Datos/                     # Carpeta donde se almacenan los archivos binarios
+│   ├── inventario.bin         # Archivo de inventario en formato binario
+│   └── ventas.bin             # Archivo de ventas en formato binario

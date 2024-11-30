@@ -1,0 +1,13 @@
+Factura de Venta
+Cliente: Juan Perez
+Fecha: 28/11/2024
+Teléfono: (03) 1111-2222
+
+Producto                       Cantidad   Precio Unitario (¥)  Total (¥)           
+--------------------------------------------------------------------------------
+Cemento Gris Tipo A            40         6000.00              240000.00           
+Cemento Gris Tipo B            50         6500.00              325000.00           
+--------------------------------------------------------------------------------
+Total de la Venta (¥)                                        565000.00           
+
+Gracias por su compra!
