@@ -1,7 +1,7 @@
 Factura de Venta
 Cliente: Maria Lopez
 Fecha: 29/11/2024
-Teléfono: (03) 2345-6789
+Telefono: (03) 2345-6789
 
 Producto                       Cantidad   Precio Unitario (¥)  Total (¥)           
 --------------------------------------------------------------------------------

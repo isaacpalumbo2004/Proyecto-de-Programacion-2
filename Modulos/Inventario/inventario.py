@@ -71,14 +71,10 @@ def guardar_inventario_en_binario(archivo_bin, inventario):
         return
     
     archivo = abrir_archivo(archivo_bin, 'wb')
-    if archivo is None:
-        return
-
-    try:
-        escribir_inventario_a_archivo(archivo, inventario)
-    except Exception as e:
-        print(f"Error al guardar el archivo {archivo_bin}: {e}")
-
+   
+   
+    escribir_inventario_a_archivo(archivo, inventario)
+    
     archivo.close()
 
 def escribir_inventario_a_archivo(archivo, inventario):

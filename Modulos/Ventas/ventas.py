@@ -1,8 +1,9 @@
 from Modulos.Inventario.inventario import guardar_inventario_en_binario
 from Modulos.Utils.utils import abrir_archivo
+from Modulos.Utils.validaciones import Diccionario
 
-def generar_factura_venta(venta, archivo_factura):
-    total_venta = 0.0 
+def generar_factura_venta(venta, archivo_factura): #void modificador
+    total_venta = 0.0 #float
     archivo = None  # Inicializar la variable archivo
     
     archivo = abrir_archivo(archivo_factura, 'w')
@@ -10,7 +11,7 @@ def generar_factura_venta(venta, archivo_factura):
     archivo.write(f"Factura de Venta\n")
     archivo.write(f"Cliente: {venta['cliente']}\n")
     archivo.write(f"Fecha: {venta['fecha']}\n")
-    archivo.write(f"Teléfono: {venta['telefono']}\n")
+    archivo.write(f"Telefono: {venta['telefono']}\n")
     archivo.write(f"\n")
     archivo.write(f"{'Producto':<30} {'Cantidad':<10} {'Precio Unitario (¥)':<20} {'Total (¥)':<20}\n")
     archivo.write("-" * 80 + "\n")
@@ -26,12 +27,11 @@ def generar_factura_venta(venta, archivo_factura):
     
     archivo.close()  
 
-def procesar_ventas(archivo_ventas_bin):
+def procesar_ventas(archivo_ventas_bin): #return object
     """Lee y procesa las ventas desde un archivo binario."""
-    ventas = []  # Inicializar la lista de ventas
-    archivo_ventas = None  # Inicializar la variable del archivo
-    data = ""  # Inicializar la variable de datos
-
+    ventas = [] 
+    archivo_ventas = None  
+    data = ""  
     archivo_ventas = abrir_archivo(archivo_ventas_bin, 'rb')
     data = archivo_ventas.read().decode('utf-8') 
     archivo_ventas.close() 
@@ -48,7 +48,6 @@ def procesar_ventas(archivo_ventas_bin):
             cantidad_venta = int(partes[5].strip())
             precio_venta = float(partes[6].strip())
             
-            # Agregar cada venta como un diccionario a la lista
             ventas.append({
                 'cliente': cliente,
                 'fecha': fecha,
@@ -60,10 +59,9 @@ def procesar_ventas(archivo_ventas_bin):
     
     return ventas
 
-def agrupar_ventas_por_cliente(ventas, inventario):
+def agrupar_ventas_por_cliente(ventas, inventario): #return object
     """Agrupa las ventas por cliente y actualiza el inventario."""
-    ventas_por_cliente = {}  # Inicializar el diccionario para agrupar ventas
-    
+    ventas_por_cliente = {}      
     for venta in ventas:
         producto = venta['producto']
         cantidad_venta = venta['cantidad']
@@ -97,10 +95,10 @@ def agrupar_ventas_por_cliente(ventas, inventario):
     
     return ventas_por_cliente
 
-def procesar_y_agrupar_ventas(archivo_ventas_bin, archivo_inventario_bin, inventario):
+def procesar_y_agrupar_ventas(archivo_ventas_bin, archivo_inventario_bin, inventario): #return object
     
-    ventas = []  
-    ventas_por_cliente = {} 
+    ventas = []  #array uni
+    ventas_por_cliente = {} #array uni 
 
     ventas = procesar_ventas(archivo_ventas_bin)
         
