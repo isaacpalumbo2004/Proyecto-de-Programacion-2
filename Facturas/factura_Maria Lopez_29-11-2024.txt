@@ -1,12 +1,12 @@
 Factura de Venta
-Cliente: MarÃ­a Lopez
+Cliente: Maria Lopez
 Fecha: 29/11/2024
-TelÃ©fono: (03) 2345-6789
+Teléfono: (03) 2345-6789
 
-Producto                       Cantidad   Precio Unitario (Â¥)  Total (Â¥)           
+Producto                       Cantidad   Precio Unitario (¥)  Total (¥)           
 --------------------------------------------------------------------------------
 Cemento Blanco Tipo A          30         7000.00              210000.00           
 --------------------------------------------------------------------------------
-Total de la Venta (Â¥)                                        210000.00           
+Total                                                          210000.00           
 
 Gracias por su compra!

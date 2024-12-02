@@ -1,88 +1,109 @@
-from Modulos.Inventario.inventario import leer_datos_bin, guardar_inventario  # Importamos las funciones de inventario
-from Modulos.Utils.utils import validar_archivo_existe
+from Modulos.Inventario.inventario import guardar_inventario_en_binario
+from Modulos.Utils.utils import abrir_archivo
 
-def generar_factura(venta, archivo_factura):
-    if not validar_archivo_existe(archivo_factura,'w'):
-        print(f"Error: El archivo {archivo_factura,'w'} no existe.")
-        return
-    with open(archivo_factura, 'w', encoding='utf-8') as f:
-        f.write(f"Factura de Venta\n")
-        f.write(f"Cliente: {venta['cliente']}\n")
-        f.write(f"Fecha: {venta['fecha']}\n")
-        f.write(f"Teléfono: {venta['telefono']}\n")
-        f.write(f"\n")
-        f.write(f"{'Producto':<30} {'Cantidad':<10} {'Precio Unitario (¥)':<20} {'Total (¥)':<20}\n")
-        f.write("-" * 80 + "\n")
-        
-        total_venta = 0.0
-        for producto, datos in venta['productos'].items():
-            total_producto = datos['cantidad'] * datos['precio_unitario']
-            total_venta += total_producto
-            f.write(f"{producto:<30} {datos['cantidad']:<10} {datos['precio_unitario']:<20.2f} {total_producto:<20.2f}\n")
-        
-        f.write("-" * 80 + "\n")
-        f.write(f"{'Total de la Venta (¥)':<60} {total_venta:<20.2f}\n")
-        f.write(f"\nGracias por su compra!\n")
-
-
-def procesar_ventas_y_agrupar_por_cliente(archivo_ventas_bin, archivo_inventario_bin,inventario):
-    ventas_por_cliente = {}
+def generar_factura_venta(venta, archivo_factura):
+    total_venta = 0.0 
+    archivo = None  # Inicializar la variable archivo
     
-    # Leer el archivo de inventario
+    archivo = abrir_archivo(archivo_factura, 'w')
     
-    print("Hola",inventario)
-    # Verificar si el archivo de ventas existe
-    try:
-        with open(archivo_ventas_bin, 'rb') as f:
-            data = f.read().decode('utf-8')
-    except FileNotFoundError:
-        print(f"Error: El archivo {archivo_ventas_bin} no existe")
-        return {}
+    archivo.write(f"Factura de Venta\n")
+    archivo.write(f"Cliente: {venta['cliente']}\n")
+    archivo.write(f"Fecha: {venta['fecha']}\n")
+    archivo.write(f"Teléfono: {venta['telefono']}\n")
+    archivo.write(f"\n")
+    archivo.write(f"{'Producto':<30} {'Cantidad':<10} {'Precio Unitario (¥)':<20} {'Total (¥)':<20}\n")
+    archivo.write("-" * 80 + "\n")
+    
+    for producto, datos in venta['productos'].items():
+        total_producto = datos['cantidad'] * datos['precio_unitario']
+        total_venta += total_producto
+        archivo.write(f"{producto:<30} {datos['cantidad']:<10} {datos['precio_unitario']:<20.2f} {total_producto:<20.2f}\n")
+    
+    archivo.write("-" * 80 + "\n")
+    archivo.write(f"{'Total de la Venta (¥)':<62.5} {total_venta:<20.2f}\n")
+    archivo.write(f"\nGracias por su compra!\n")
+    
+    archivo.close()  
 
-    lineas = data.split('\n')
-    
+def procesar_ventas(archivo_ventas_bin):
+    """Lee y procesa las ventas desde un archivo binario."""
+    ventas = []  # Inicializar la lista de ventas
+    archivo_ventas = None  # Inicializar la variable del archivo
+    data = ""  # Inicializar la variable de datos
+
+    archivo_ventas = abrir_archivo(archivo_ventas_bin, 'rb')
+    data = archivo_ventas.read().decode('utf-8') 
+    archivo_ventas.close() 
+
+    lineas = data.split('\n') 
+
     for linea in lineas:
-        if linea.strip():  # Ignorar líneas vacías
+        if linea.strip(): 
             partes = linea.split('#')
-            cliente = partes[0].strip()  # Nombre del cliente
-            fecha = partes[1].strip()    # Fecha de la venta
-            telefono = partes[2].strip() # Teléfono
-            producto = partes[4].strip()  # Nombre del producto
-            cantidad_venta = int(partes[5].strip())  # Cantidad a vender
-            precio_venta = float(partes[6].strip())  # Precio de venta
+            cliente = partes[0].strip() 
+            fecha = partes[1].strip()   
+            telefono = partes[2].strip()
+            producto = partes[4].strip() 
+            cantidad_venta = int(partes[5].strip())
+            precio_venta = float(partes[6].strip())
             
-            # Verificamos si el producto está en el inventario
-            if producto in inventario:
-                producto_inventario = inventario[producto]
-                
-                # Verificar si hay suficiente cantidad en el inventario
-                if producto_inventario['cantidad'] >= cantidad_venta:
-                    # Reducir la cantidad disponible en el inventario
-                    producto_inventario['cantidad'] -= cantidad_venta
-                    
-                    # Registrar la venta en ventas por cliente
-                    if cliente not in ventas_por_cliente:
-                        ventas_por_cliente[cliente] = {
-                            'fecha': fecha,
-                            'telefono': telefono,
-                            'productos': {}
-                        }
-                    
-                    if producto in ventas_por_cliente[cliente]['productos']:
-                        ventas_por_cliente[cliente]['productos'][producto]['cantidad'] += cantidad_venta
-                    else:
-                        ventas_por_cliente[cliente]['productos'][producto] = {
-                            'cantidad': cantidad_venta,
-                            'precio_unitario': precio_venta
-                        }
-                else:
-                    print(f"No hay suficiente stock de {producto} para la venta.")
-            else:
-                print(f"El producto {producto} no está en el inventario.")
-    guardar_inventario(archivo_inventario_bin, inventario)
+            # Agregar cada venta como un diccionario a la lista
+            ventas.append({
+                'cliente': cliente,
+                'fecha': fecha,
+                'telefono': telefono,
+                'producto': producto,
+                'cantidad': cantidad_venta,
+                'precio_unitario': precio_venta
+            })
+    
+    return ventas
 
-    # Una vez procesadas todas las ventas, guardar el inventario actualizado
+def agrupar_ventas_por_cliente(ventas, inventario):
+    """Agrupa las ventas por cliente y actualiza el inventario."""
+    ventas_por_cliente = {}  # Inicializar el diccionario para agrupar ventas
     
+    for venta in ventas:
+        producto = venta['producto']
+        cantidad_venta = venta['cantidad']
+        
+        if producto in inventario:
+            producto_inventario = inventario[producto]
+            
+            if producto_inventario['cantidad'] >= cantidad_venta:
+                producto_inventario['cantidad'] -= cantidad_venta
+                
+                cliente = venta['cliente']
+                
+                if cliente not in ventas_por_cliente:
+                    ventas_por_cliente[cliente] = {
+                        'fecha': venta['fecha'],
+                        'telefono': venta['telefono'],
+                        'productos': {}
+                    }
+                
+                if producto in ventas_por_cliente[cliente]['productos']:
+                    ventas_por_cliente[cliente]['productos'][producto]['cantidad'] += cantidad_venta
+                else:
+                    ventas_por_cliente[cliente]['productos'][producto] = {
+                        'cantidad': cantidad_venta,
+                        'precio_unitario': venta['precio_unitario']
+                    }
+            else:
+                print(f"No hay suficiente stock de {producto} para la venta.")
+        else:
+            print(f"El producto {producto} no esta en el inventario.")
     
+    return ventas_por_cliente
+
+def procesar_y_agrupar_ventas(archivo_ventas_bin, archivo_inventario_bin, inventario):
+    
+    ventas = []  
+    ventas_por_cliente = {} 
+
+    ventas = procesar_ventas(archivo_ventas_bin)
+        
+    ventas_por_cliente = agrupar_ventas_por_cliente(ventas, inventario)
     
     return ventas_por_cliente

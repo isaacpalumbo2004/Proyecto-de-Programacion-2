@@ -7,3 +7,10 @@ def validar_archivo_existe(archivo,data):
         return False
       
 
+def abrir_archivo(archivo_bin, modo):
+    try:
+        archivo = open(archivo_bin, modo)
+        return archivo
+    except FileNotFoundError:
+        print(f"Error: El archivo {archivo_bin} no se encontró.")
+        return None

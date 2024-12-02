@@ -1,64 +1,90 @@
-# modulos/inventario/inventario.py
+from Modulos.Utils.utils import validar_archivo_existe, abrir_archivo
 
-from Modulos.Utils.utils import validar_archivo_existe  # Importamos la función para validar el archivo
-
-def leer_datos_bin(archivo_bin):
-    """Lee un archivo binario con los datos y los organiza en un diccionario de inventario."""
-    
-    # Validamos que el archivo de inventario exista antes de continuar
+def cargar_inventario_desde_binario(archivo_bin):
+    inventario = {}
     if not validar_archivo_existe(archivo_bin, 'rb'):
         print(f"Error: El archivo {archivo_bin} no existe.")
-        return {}
-    
-    inventario = {}
+        return inventario
 
-    try:
-        with open(archivo_bin, 'rb') as f:
-            data = f.read().decode('utf-8')
-    except Exception as e:
-        print(f"Error al leer el archivo {archivo_bin}: {e}")
-        return {}
+    archivo = abrir_archivo(archivo_bin, 'rb')
+    if archivo is None:
+        return inventario
 
-    lineas = data.split('\n')
-    
-    for linea in lineas:
-        if linea.strip():  # Ignorar líneas vacías
-            partes = linea.split('#')
-            proveedor = partes[0].strip()
-            fecha = partes[1].strip()
-            telefono = partes[2].strip()
-            codigo_producto = partes[3].strip()
-            producto = partes[4].strip()
-            cantidad = int(partes[5].strip())
-            precio_unitario = float(partes[6].strip())
-            
-            if producto not in inventario:
-                inventario[producto] = {
-                    'proveedor': proveedor,
-                    'telefono': telefono,
-                    'fecha_ingreso': fecha,
-                    'codigo_producto': codigo_producto,
-                    'cantidad': 0,
-                    'precio_unitario': precio_unitario,
-                    'ventas': []  # Lista de ventas (vacía al inicio)
-                }
-            
-            inventario[producto]['cantidad'] += cantidad
-    
+    contenido = leer_contenido_archivo(archivo)
+    if not contenido:
+        archivo.close()
+        return inventario
+
+    lineas = contenido.split('\n')
+    inventario = procesar_lineas_inventario(lineas)
+
+    archivo.close()
     return inventario
 
-def guardar_inventario(archivo_bin, inventario):
-    print(inventario)
-    """Reescribe el archivo binario de inventario con las cantidades actualizadas."""
-    # Validamos que el archivo de inventario exista antes de continuar
+def leer_contenido_archivo(archivo):
+    try:
+        data = archivo.read().decode('utf-8')
+        return data
+    except Exception as e:
+        print(f"Error al leer el archivo: {e}")
+        return None
+
+def procesar_lineas_inventario(lineas):
+    inventario = {}
+    for linea in lineas:
+        if linea.strip():
+            producto = parsear_linea_producto(linea)
+            if producto:
+                actualizar_inventario(inventario, producto)
+    return inventario
+
+def parsear_linea_producto(linea):
+    partes = linea.split('#')
+    if len(partes) < 7:
+        print(f"Error: Línea de datos mal formada: {linea}")
+        return None
+
+    try:
+        return {
+            'proveedor': partes[0].strip(),
+            'fecha_ingreso': partes[1].strip(),
+            'telefono': partes[2].strip(),
+            'codigo_producto': partes[3].strip(),
+            'producto': partes[4].strip(),
+            'cantidad': int(partes[5].strip()),
+            'precio_unitario': float(partes[6].strip()),
+            'ventas': []
+        }
+    except ValueError as e:
+        print(f"Error al parsear producto: {e}")
+        return None
+
+def actualizar_inventario(inventario, producto):
+    if producto['producto'] not in inventario:
+        inventario[producto['producto']] = producto
+    else:
+        inventario[producto['producto']]['cantidad'] += producto['cantidad']
+
+def guardar_inventario_en_binario(archivo_bin, inventario):
     if not validar_archivo_existe(archivo_bin, 'wb'):
         print(f"Error: El archivo {archivo_bin} no existe.")
         return
     
+    archivo = abrir_archivo(archivo_bin, 'wb')
+    if archivo is None:
+        return
+
     try:
-        with open(archivo_bin, 'wb') as f:
-            for producto, datos in inventario.items():
-                linea = f"{datos['proveedor']}#{datos['fecha_ingreso']}#{datos['telefono']}#{datos['codigo_producto']}#{producto}#{datos['cantidad']}#{datos['precio_unitario']}\n"
-                f.write(linea.encode('utf-8'))
+        escribir_inventario_a_archivo(archivo, inventario)
     except Exception as e:
         print(f"Error al guardar el archivo {archivo_bin}: {e}")
+
+    archivo.close()
+
+def escribir_inventario_a_archivo(archivo, inventario):
+    for producto, datos in inventario.items():
+        linea = formatear_producto(datos)
+        archivo.write(linea.encode('utf-8'))
+
+def formatear_producto(datos):
+    return f"{datos['proveedor']}#{datos['fecha_ingreso']}#{datos['telefono']}#{datos['codigo_producto']}#{datos['producto']}#{datos['cantidad']}#{datos['precio_unitario']}\n"
